@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime App</title>
+    <style>
+        body, h1, th, td, .form-section {
+            user-select: none;
+            cursor: default;
+        }
+
+        input, select, button {
+            user-select: text;
+            cursor: auto;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('/img/751689.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #F8F8F8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input, select {
+            background-color: #F0F0F0;
+            color: #333;
+        }
+
+        button {
+            background-color: #446424;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3d5a20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #4f4642;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #555;
+        }
+
+        th {
+            background-color: #665b55;
+        }
+
+        tr:hover {
+            background-color: #473f3b;
+        }
+
+        .actions button {
+            margin: 0 3px;
+            background-color: #c84d5d;
+        }
+
+        .actions button:hover {
+            background-color: #b44554;
+        }
+
+        .delete-button {
+            background-color: #c84d5d;
+        }
+
+        .delete-button:hover {
+            background-color: #b44554;
+        }
+
+        .form-section {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #musicControls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 8px 12px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        #musicControls button {
+            background-color: #44547c;
+            color: white;
+            font-size: 18px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+        }
+
+        #musicControls input[type="range"] {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+<h1>Lista Anime</h1>
+
+<div id="musicControls">
+    <button id="musicToggleBtn">🎵</button>
+    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+</div>
+
+<audio id="bgAudio" loop>
+    <source src="/sounds/aruarian-dance.mp3" type="audio/mpeg"> Twoja przeglądarka nie obsługuje odtwarzacza audio.
+</audio>
+
+<div class="form-section">
+    <input type="text" id="title" placeholder="Tytuł" />
+    <input type="text" id="studio" placeholder="Studio" />
+    <select id="rate">
+        <option value="">Brak oceny</option>
+        <script>
+
+            for (let i = 1; i <= 10; i++) {
+                document.write(`<option value="${i}">${i}</option>`);
+            }
+        </script>
+    </select>
+    <button onclick="addAnime()">Dodaj Anime</button>
+</div>
+
+<table id="animeTable">
+    <thead>
+    <tr>
+        <th>Tytuł</th>
+        <th>Studio</th>
+        <th>Ocena</th>
+        <th>Akcje</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+    const audio = document.getElementById("bgAudio");
+    const toggleBtn = document.getElementById("musicToggleBtn");
+    const volumeSlider = document.getElementById("volumeControl");
+
+    let isPlaying = false;
+
+    toggleBtn.addEventListener("click", () => {
+        if (isPlaying) {
+            audio.pause();
+            toggleBtn.textContent = "▶️";
+        } else {
+            audio.play().then(() => {
+                toggleBtn.textContent = "⏸️";
+            }).catch(e => {
+                alert("Przeglądarka zablokowała odtwarzanie. Kliknij jeszcze raz.");
+            });
+        }
+        isPlaying = !isPlaying;
+    });
+
+    volumeSlider.addEventListener("input", () => {
+        audio.volume = volumeSlider.value;
+    });
+
+    audio.volume = volumeSlider.value;
+
+    const API_URL = "/data";
+
+    async function fetchAnime() {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        const tbody = document.querySelector("#animeTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(anime => {
+            const row = document.createElement("tr");
+            row.setAttribute("data-id", anime.id);
+            row.innerHTML = `
+                <td>${anime.title}</td>
+                <td>${anime.studio}</td>
+                <td>${anime.rate !== null && anime.rate !== undefined ? anime.rate : "Brak"}</td>
+                <td class="actions">
+                    <button onclick="editAnimeFromRow(this)">Edytuj</button>
+                    <button class="delete-button" onclick="deleteAnimeFromRow(this)">Usuń</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    async function addAnime() {
+        const title = document.getElementById("title").value.trim();
+        const studio = document.getElementById("studio").value.trim();
+        const rate = document.getElementById("rate").value;
+
+        if (!title || !studio) {
+            alert("Uzupełnij tytuł i studio");
+            return;
+        }
+
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: title,
+                studio: studio,
+                rate: rate ? parseInt(rate) : null
+            })
+        });
+
+        document.getElementById("title").value = "";
+        document.getElementById("studio").value = "";
+        document.getElementById("rate").value = "";
+
+        fetchAnime();
+    }
+
+    async function editAnimeFromRow(buttonElement) {
+        const row = buttonElement.closest("tr");
+        const id = row.getAttribute("data-id");
+
+        const currentTitle = row.cells[0].textContent;
+        const currentStudio = row.cells[1].textContent;
+        const currentRateText = row.cells[2].textContent;
+        const currentRate = currentRateText === "Brak" ? "" : currentRateText;
+
+        const newTitle = prompt("Nowy tytuł:", currentTitle);
+        if (newTitle === null) return;
+
+        const newStudio = prompt("Nowe studio:", currentStudio);
+        if (newStudio === null) return;
+
+        let newRate = prompt("Nowa ocena (1-10 lub puste):", currentRate);
+        if (newRate === null) return;
+
+        newRate = newRate.trim();
+        if (newRate !== "" && (isNaN(newRate) || newRate < 1 || newRate > 10)) {
+            alert("Ocena musi być liczbą od 1 do 10 lub pusta!");
+            return;
+        }
+
+        await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newTitle,
+                studio: newStudio,
+                rate: newRate === "" ? null : parseInt(newRate)
+            })
+        });
+        fetchAnime();
+    }
+
+    // Nowa funkcja do usuwania, która pobiera ID z wiersza
+    async function deleteAnimeFromRow(buttonElement) {
+        const row = buttonElement.closest("tr");
+        const id = row.getAttribute("data-id");
+
+        if (confirm("Na pewno chcesz usunąć ten wpis?")) {
+            await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
+            fetchAnime();
+        }
+    }
+
+    fetchAnime();
+</script>
+</body>
+</html>
