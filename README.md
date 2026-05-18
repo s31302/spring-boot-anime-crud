@@ -1,4 +1,5 @@
 # 🎌 AnimeManager - Full-Stack Spring Boot App
+![Działanie aplikacji](screenshots/app-demo.gif)
 
 CRUD web application for managing your favorite anime list. Built with **Spring Boot 3**, **Java 21**, and a **Lo-fi aesthetic frontend**.
 
