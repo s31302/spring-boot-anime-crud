@@ -27,12 +27,16 @@ CRUD web application for managing your favorite anime list. Built with **Spring 
    ./mvnw clean package
    ```
 3. **Setup the executable**:
-   * Navigate to the `target/` folder.
-   * Copy the generated `.jar` file to the main project directory.
-   * Rename it to **`demo.jar`** (required by the start script).
-4. **Run the application**:
-   Double-click the **`start.bat`** file.
-5. **Open in Browser**:
+   Run this single command to automatically copy and rename the generated JAR file to the main directory:
+   ```bash
+   Copy-Item "target\demo-0.0.1-SNAPSHOT.jar" "demo.jar" -Force
+   ```
+5. **Run the application**:
+   Double-click the **`start.bat`** file or execute it via terminal:
+   ```bash
+   ./start.bat
+   ``` 
+7. **Open in Browser**:
    Go to: `http://localhost:8080`
 
 ## 📊 API Reference
