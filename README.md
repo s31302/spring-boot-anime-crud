@@ -1,9 +1,9 @@
-# 🎌 AnimeManager - Full-Stack Spring Boot App
+# AnimeManager - Full-Stack Spring Boot App
 ![Działanie aplikacji](screenshots/app-demo.gif)
 
 CRUD web application for managing your favorite anime list. Built with **Spring Boot 3**, **Java 21**, and a **Lo-fi aesthetic frontend**.
 
-## ✨ Features
+## Features
 * **Full CRUD Operations**: Create, Read, Update, and Delete anime records.
 * **Database Persistence**: Uses **H2 Database** to save your data locally (files: `.mv.db`).
 * **Smart Sorting**: Sort by rating (descending/ascending) via backend API.
@@ -11,7 +11,7 @@ CRUD web application for managing your favorite anime list. Built with **Spring 
 * **Windows Ready**: Includes a `start.bat` script for quick execution.
 
  
-## 🚀 How to Run
+## How to Run
 
 ### Prerequisites
 * **Java 21** must be installed on your system.
@@ -40,7 +40,7 @@ CRUD web application for managing your favorite anime list. Built with **Spring 
 7. **Open in Browser**:
    Go to: `http://localhost:8080`
 
-## 📊 API Reference
+## API Reference
 * `GET /data` - Retrieve all anime entries.
 * `GET /data?sort=rate_desc` - Get anime sorted by rating (highest first).
 * `POST /data` - Add a new anime.
